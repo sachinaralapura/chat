@@ -11,6 +11,10 @@ function ChatSidebar() {
     const isContactsLoading = useChatStore((state) => state.isContactsLoading);
     const selectedContact = useChatStore((state) => state.selectedContact);
     const setSelectedContact = useChatStore((state) => state.setSelectedContact);
+    const onlineUsers = useAuthStore((state) => state.onlineUsers);
+
+    // console.log(onlineUsers, "new state");
+
 
     useEffect(() => {
         if (!authUser) return;
@@ -58,7 +62,7 @@ function ChatSidebar() {
                         className={`w-full p-2 lg:p-3 flex items-center gap-3 hover:bg-base-300 transition-colors  ${selectedContact?._id === user._id
                             ? "bg-base-300 ring-1 ring-base-300" : ""}`} >
                         {/* avatar */}
-                        <div className={`avatar avatar-placeholder indicator  ${user.onlineStatus && "avatar-online"} relative mx-auto lg:mx-0`} >
+                        <div className={`avatar avatar-placeholder indicator  ${onlineUsers.includes(user._id) && "avatar-online"} relative mx-auto lg:mx-0`} >
                             <div className="w-8 lg:w-12 rounded-full">
                                 {/* <span className="indicator-item indicator-bottom indicator-center badge">{user.username}</span> */}
                                 <img

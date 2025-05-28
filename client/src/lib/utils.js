@@ -1,4 +1,4 @@
-
+import toast from "react-hot-toast";
 export const FormatDate = (date) => {
     return new Date(date).toLocaleString("en-in", {
         day: "numeric",
@@ -10,3 +10,9 @@ export const FormatDate = (date) => {
     })
 }
 
+export const ErrorToast = (err) => {
+    if (err.code === "ERR_NETWORK")
+        toast.error(err.message);
+    else
+        toast.error(err.response.data.message);
+}

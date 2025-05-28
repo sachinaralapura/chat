@@ -13,7 +13,6 @@ function App() {
 
     const { authUser, isCheckingAuth, checkAuth } = useAuthStore();
     const initTheme = usePreferenceStore((state) => state.initTheme);
-
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     useEffect(() => {
         if (!isOnline) {

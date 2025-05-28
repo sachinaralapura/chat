@@ -3,6 +3,7 @@ import UserModel from "../models/user.model.js";
 import { responseWriter, responseWriter500 } from "../lib/utils.js";
 import mongoose from "mongoose";
 import cloudinary from "../lib/cloudinary.js";
+import { GetUserContacts } from "../services/user_service.js";
 
 const updateProfileSchema = Joi.object({
     phone: Joi.string()
@@ -85,29 +86,8 @@ export const removeProfileImage = async (req, res) => {
 export const getUserContact = async (req, res) => {
     try {
         const userId = req.user._id;
-        const user = await UserModel.findById(userId)
-            .populate({
-                path: "contacts.userId",
-                select: "-password -contacts",
-            })
-            .exec();
-        if (!user) return responseWriter(res, 404, false, "user not found");
+        let contacts = await GetUserContacts(userId);
 
-        let contacts = [];
-        user.contacts.map((contact) => {
-            contacts.push({
-                _id: contact.userId._id,
-                email: contact.userId.email,
-                phone: contact.userId.phone,
-                username: contact.userId.username,
-                nickName: contact.name || contact.userId.username,
-                blocked: contact.blocked,
-                profilePicture: contact.userId.profilePicture,
-                bio: contact.userId.bio,
-                onlineStatus: contact.userId.onlineStatus,
-                lastSeen: contact.userId.lastSeen || contact.userId.createdAt,
-            });
-        });
         return responseWriter(res, 200, true, "Contacts retrived successfully", { contacts });
     } catch (err) {
         console.err(err);

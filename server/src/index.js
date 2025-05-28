@@ -4,6 +4,8 @@ import { connectMongo } from "./lib/db.js";
 import { devrouter, authRouter, userRouter, messageRouter } from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { app, httpserver } from "./lib/socketio.js";
+
 // set routers
 function apiV1Router(app) {
     // v1 router
@@ -29,13 +31,11 @@ function setMiddlewares(app) {
 }
 
 function main() {
-    const app = express();
-
     setMiddlewares(app);
     apiV1Router(app);
 
     const PORT = process.env.PORT || 8000;
-    app.listen(PORT, () => {
+    httpserver.listen(PORT, () => {
         connectMongo();
         console.log(`app running on ${PORT}`);
     });
