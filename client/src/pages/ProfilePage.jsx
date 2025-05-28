@@ -2,6 +2,7 @@ import { useAuthStore } from "../store";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, User, Mail, Phone, Edit, Save, X, Lock, Loader2, Trash } from "lucide-react";
 import toast from "react-hot-toast";
+import { DEFAULT_IMG } from "../contants";
 
 function ProfilePage() {
     const authUser = useAuthStore((state) => state.authUser);
@@ -117,7 +118,7 @@ function ProfilePage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen dark:bg-base-200 ">
+        <div className="flex flex-col items-center justify-center min-h-screen dark:bg-base-200">
             <div className="card w-full max-w-2xl dark:bg-base-100 shadow-xl  rounded-md p-6 sm:p-8 overflow-scroll">
                 <div className="card-body items-center text-center p-0">
                     <h2 className="card-title text-3xl font-bold text-base-content mb-8">
@@ -129,10 +130,10 @@ function ProfilePage() {
                         <div className="avatar relative mb-8 group">
                             <div className="w-36 h-36 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden">
                                 <img
-                                    src={image || authUser.profilePicture || "/owl.png"}
+                                    src={image || authUser.profilePicture || DEFAULT_IMG}
                                     alt="Profile"
                                     className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
-                                    onError={(e) => (e.target.src = "/owl.png")}
+                                    onError={(e) => (e.target.src = DEFAULT_IMG)}
                                 />
                             </div>
                             {/* Overlay for changing picture with DaisyUI btn and Lucid Icon */}
@@ -266,7 +267,7 @@ function ProfilePage() {
                     <div className="card-actions justify-center mt-8 w-full">
                         {!isEditing ? (
                             <button
-                                onClick={() => {}}
+                                onClick={() => { }}
                                 className="btn btn-primary btn-wide flex items-center gap-2 rounded-md"
                             >
                                 <Edit size={20} /> Edit Profile

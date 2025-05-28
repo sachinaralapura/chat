@@ -1,18 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import useDebounce from "../../lib/useDebounce";
 import { useChatStore } from "../../store";
+import toast from "react-hot-toast";
+import { DEFAULT_IMG, MAX_USER_SELECTION } from "../../contants/index";
+import { Check } from "lucide-react";
 
 const SearchDropdown = ({ setSelectUser }) => {
     const loading = useChatStore((state) => state.isSearchingContact);
     const UsersSearch = useChatStore((state) => state.UsersSearch);
     const searchUsers = useChatStore((state) => state.searchUsers);
+    const contacts = useChatStore((state) => state.contacts);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [error, setError] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to control dropdown visibility
 
     const debouncedSearchTerm = useDebounce(searchTerm, 800); // Debounce for 500ms
-
     const dropdownRef = useRef(null); // Ref for the dropdown container
 
     // Effect to handle clicking outside the dropdown to close it
@@ -34,6 +37,7 @@ const SearchDropdown = ({ setSelectUser }) => {
         }
     }, [debouncedSearchTerm]); // Re-run when debouncedSearchTerm changes
 
+    // Function to handle input change
     const handleInputChange = (e) => {
         setSearchTerm(e.target.value);
         if (e.target.value.trim().length > 0) {
@@ -43,11 +47,17 @@ const SearchDropdown = ({ setSelectUser }) => {
         }
     };
 
+    // Function to handle add contact
     const handleSelectUser = (user) => {
         setIsDropdownOpen(false); // Close dropdown after selection
         // check if user is already selected
         setSelectUser((p) => {
             if (p.find((u) => u._id === user._id)) return p;
+            if (contacts.find((u) => u._id === user._id)) return p;
+            if (p.length >= MAX_USER_SELECTION) {
+                toast.error(`You can't add more than ${MAX_USER_SELECTION} contacts`);
+                return p;
+            }
             return [...p, user];
         });
     };
@@ -89,6 +99,7 @@ const SearchDropdown = ({ setSelectUser }) => {
                             <li className="text-error text-center py-2">{error}</li>
                         )}
 
+                        {/* Display no results message */}
                         {!loading &&
                             !error &&
                             searchUsers.length === 0 &&
@@ -98,26 +109,33 @@ const SearchDropdown = ({ setSelectUser }) => {
                                 </li>
                             )}
 
+                        {/* Display search results */}
                         {!loading &&
                             !error &&
                             searchUsers.length > 0 &&
                             searchUsers.map((user) => (
                                 <li key={user._id} onClick={() => handleSelectUser(user)}>
-                                    <a>
-                                        <div className="flex items-center gap-2">
-                                            <img
-                                                src={user.profilePicture || "/owl.png"}
-                                                alt={user.username}
-                                                className="w-8 h-8 rounded-full object-cover"
-                                            />
-                                            <div>
-                                                <div className="font-semibold">{user.username}</div>
-                                                <div className="text-sm text-base-content/70">
-                                                    {user.email}
-                                                </div>
+                                    <div className="flex flex-none items-center gap-2">
+                                        {/* user profile picture */}
+                                        <img
+                                            src={user.profilePicture || DEFAULT_IMG}
+                                            alt={"user profile picture"}
+                                            className="w-8 h-8 rounded-full object-cover"
+                                        />
+
+                                        {/* user name and email */}
+                                        <div className="flex flex-1">
+                                            <div className="font-semibold">{user.username}</div>
+                                            <div className="text-sm text-base-content/70">
+                                                {user.email}
                                             </div>
                                         </div>
-                                    </a>
+
+                                        {/* check if user is already in contact */}
+                                        {contacts.find((c) => c._id === user._id) && (
+                                            <Check className="text-primary size-5" />
+                                        )}
+                                    </div>
                                 </li>
                             ))}
                     </ul>

@@ -69,6 +69,7 @@ export const sendMessage = async (req, res) => {
 
         return responseWriter(res, 201, true, "message sent", { message: newMessage });
     } catch (err) {
+        console.error(err);
         return responseWriter500(res, err);
     }
 };

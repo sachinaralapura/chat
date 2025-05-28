@@ -2,6 +2,7 @@ import { useAuthStore, useChatStore } from "../store";
 import { Users } from "lucide-react";
 import { useEffect } from "react";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
+import { DEFAULT_IMG } from "../contants";
 // sidebar for chat , contains list of users
 function ChatSidebar() {
     const authUser = useAuthStore((state) => state.authUser);
@@ -28,8 +29,8 @@ function ChatSidebar() {
     }
 
     return (
-        <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
-            <div className="border-b border-base-300 w-full p-5">
+        <aside className="h-full w-20 lg:w-72 border-r border-base-300 bg-base-200 flex flex-col transition-all duration-200">
+            <div className="border-b border-base-300 w-full p-3">
                 <div className="flex items-center gap-2">
                     <Users className="size-5" />
                     <span className="font-medium hidden lg:block">Contacts</span>
@@ -49,26 +50,19 @@ function ChatSidebar() {
                 </div> */}
             </div>
 
-            <div className="overflow-y-auto w-full py-3">
-                {contacts?.map((user) => (
+            <div className="overflow-y-auto w-full">
+                {contacts.map((user) => (
                     <button
                         key={user._id}
                         onClick={() => setSelectedContact(user)}
-                        className={`w-full p-3 flex items-center gap-3 hover:bg-base-300 transition-colors ${
-                            selectedContact?._id === user._id
-                                ? "bg-base-300 ring-1 ring-base-300"
-                                : ""
-                        }`}
-                    >
+                        className={`w-full p-2 lg:p-3 flex items-center gap-3 hover:bg-base-300 transition-colors  ${selectedContact?._id === user._id
+                            ? "bg-base-300 ring-1 ring-base-300" : ""}`} >
                         {/* avatar */}
-                        <div
-                            className={`avatar avatar-placeholder  ${
-                                user.onlineStatus && "avatar-online"
-                            } relative mx-auto lg:mx-0`}
-                        >
-                            <div className="w-12 rounded-full">
+                        <div className={`avatar avatar-placeholder indicator  ${user.onlineStatus && "avatar-online"} relative mx-auto lg:mx-0`} >
+                            <div className="w-8 lg:w-12 rounded-full">
+                                {/* <span className="indicator-item indicator-bottom indicator-center badge">{user.username}</span> */}
                                 <img
-                                    src={user.profilePic || "/owl.svg"}
+                                    src={user.profilePic || DEFAULT_IMG}
                                     alt={user.username}
                                     className="size-12 object-cover rounded-full w-16"
                                 />
@@ -84,7 +78,7 @@ function ChatSidebar() {
                 ))}
 
                 {contacts?.length === 0 && (
-                    <div className="text-center text-zinc-500 py-4">No online users</div>
+                    <div className="text-center text-zinc-500 py-4">No users</div>
                 )}
             </div>
         </aside>

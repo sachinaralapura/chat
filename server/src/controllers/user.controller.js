@@ -108,7 +108,6 @@ export const getUserContact = async (req, res) => {
                 lastSeen: contact.userId.lastSeen || contact.userId.createdAt,
             });
         });
-        console.log(contacts);
         return responseWriter(res, 200, true, "Contacts retrived successfully", { contacts });
     } catch (err) {
         console.err(err);

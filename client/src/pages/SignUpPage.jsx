@@ -36,7 +36,7 @@ function SignUpPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center pb-20 ">
+        <div className="min-h-screen flex flex-col items-center justify-center pb-20">
             {/* particle js */}
             {particle && <Parti />}
             {/* Main Content - Sign Up Card */}
@@ -63,8 +63,8 @@ function SignUpPage() {
                             required
                         />
                     </label>
-                    {/* Email Input */}
 
+                    {/* Email Input */}
                     <label
                         htmlFor="email"
                         className="input input-ghost w-full border-primary/40 rounded-md"
@@ -80,6 +80,7 @@ function SignUpPage() {
                             required
                         />
                     </label>
+
                     {/* Password Input */}
                     <label
                         htmlFor="password"
@@ -106,6 +107,7 @@ function SignUpPage() {
                             )}
                         </span>
                     </label>
+                    
                     {/* Sign Up Button */}
                     <button
                         type="submit"

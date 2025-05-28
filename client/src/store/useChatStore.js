@@ -13,6 +13,8 @@ const useChatStore = create((set, get) => ({
     isChatLoading: false,
     isAddingContact: false,
     isSearchingContact: false,
+    isSendingMessage: false,
+
 
     setSelectedContact: (contact) => {
         set({ selectedContact: contact })
@@ -33,9 +35,10 @@ const useChatStore = create((set, get) => ({
 
     addContact: async (contact_id) => {
         set({ isAddingContact: true })
+        const getContacts = get().getContacts;
         try {
             const res = await axiosObj.post(`/user/add-contact`, { friendId: contact_id });
-            set({ contacts: res.data.contacts });
+            getContacts();
             toast.success(res.data.message);
         } catch (err) {
             console.error(err);
@@ -47,7 +50,7 @@ const useChatStore = create((set, get) => ({
 
     // search users by email
     UsersSearch: async (email) => {
-        set({ isSearchingContactsr: true })
+        set({ isSearchingContact: true })
         // send email as query parameter
         try {
             const res = await axiosObj.get(`/user/search-users?email=${email}`);
@@ -57,7 +60,7 @@ const useChatStore = create((set, get) => ({
             toast.error(err.response.data.message);
         }
         finally {
-            set({ isSearchingContacts: false })
+            set({ isSearchingContact: false })
         }
     },
 
@@ -75,7 +78,8 @@ const useChatStore = create((set, get) => ({
         }
     },
 
-    sendMessages: async (data) => {
+    sendMessage: async (data) => {
+        set({ isSendingMessage: true })
         const { selectedContact, messages } = get();
         try {
             const res = await axiosObj.post(`/message/send/${selectedContact._id}`, data);
@@ -83,6 +87,8 @@ const useChatStore = create((set, get) => ({
         } catch (err) {
             console.log(err);
             toast.error(err.response.data.message);
+        } finally {
+            set({ isSendingMessage: false })
         }
     },
 

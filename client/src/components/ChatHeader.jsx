@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { useAuthStore, useChatStore } from "../store";
+import { DEFAULT_IMG } from "../contants";
 
 const ChatHeader = () => {
     const selectedContact = useChatStore((state) => state.selectedContact);
@@ -7,14 +8,14 @@ const ChatHeader = () => {
     const { onlineUsers } = useAuthStore();
 
     return (
-        <div className="p-2.5 border-b border-base-300">
+        <div className="p-1 border-b border-base-300">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     {/* Avatar */}
                     <div className="avatar">
-                        <div className="size-10 rounded-full relative">
+                        <div className="size-9 lg:size-10 rounded-full relative">
                             <img
-                                src={selectedContact.profilePicture || "/owl.svg"}
+                                src={selectedContact.profilePicture || DEFAULT_IMG}
                                 alt={selectedContact.username}
                             />
                         </div>

@@ -17,9 +17,9 @@ const HomePage = () => {
     }, [authUser]);
 
     return (
-        <div className="h-screen  bg-base-200">
+        <div className="h-screen bg-base-100">
             <div className="flex items-center justify-center pt-16 ">
-                <div className="bg-base-100 rounded-lg shadow-cl w-full m-5 h-[calc(100vh-7rem)]">
+                <div className="bg-base-100 rounded-lg shadow-2xl w-full mt-5 mx-5 h-[calc(100vh-6rem)]">
                     <div className="flex h-full rounded-lg  overflow-hidden ">
                         <Sidebar />
                         {!selectedContact ? <NoChatSelected /> : <ChatContainer />}
