@@ -20,13 +20,7 @@ A real-time chat application built with the MERN stack (MongoDB, Express.js, Rea
 
 ## Installation
 
-1. Clone the repository: `git clone <your-repo-link>`
-2. `cd client` - for client
-3. `cd server` - for server
-4. Install dependencies: `npm install`
-5. Set up environment variables in a `.env` file
-6. Start the server: `npm run dev`
-7. Start the client: `npm run dev`
+// TODO
 
 ## Usage
 
