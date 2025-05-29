@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
-import { useAuthStore, useChatStore } from "../store";
-import { DEFAULT_IMG } from "../contants";
+import { useAuthStore, useChatStore } from "../../store";
+import { DEFAULT_IMG } from "../../contants";
 
 const ChatHeader = () => {
     const selectedContact = useChatStore((state) => state.selectedContact);

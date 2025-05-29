@@ -1,32 +1,9 @@
-import Joi from "joi";
 import UserModel from "../models/user.model.js";
 import { responseWriter, responseWriter500 } from "../lib/utils.js";
 import mongoose from "mongoose";
 import cloudinary from "../lib/cloudinary.js";
-import { GetUserContacts } from "../services/user_service.js";
-
-const updateProfileSchema = Joi.object({
-    phone: Joi.string()
-        .pattern(/^[0-9]*$/)
-        .allow("")
-        .custom((value, helpers) => {
-            if (value === "") {
-                return value; // Valid if empty string (length 0)
-            }
-            if (value.length >= 10 && value.length <= 12) {
-                return value; // Valid if length is between 10 and 12
-            }
-            return helpers.error("string.length"); // Custom error for invalid length
-        }, "Phone number length validation"),
-
-    profilePicture: Joi.string(),
-    bio: Joi.string().min(0).max(200),
-    username: Joi.string().min(3),
-});
-
-const addContactSchema = Joi.object({
-    friendId: Joi.string().required(),
-});
+import { GetUserContacts, UpdateProfileService, RemoveProfileImageService } from "../services/user_service.js";
+import { updateProfileSchema, addContactSchema } from "../lib/validation.js";
 
 /**
  *
@@ -42,52 +19,46 @@ export const updateProfile = async (req, res) => {
         const userId = req.user._id;
         let profileInfo = req.body;
 
-        if (profileInfo.profilePicture) {
-            const uploadResponse = await cloudinary.uploader.upload(profileInfo.profilePicture);
-            profileInfo.profilePicture = uploadResponse.secure_url;
-        }
-        const updatedUser = await UserModel.findByIdAndUpdate(
-            userId,
-            { $set: profileInfo }, // Use $set to update only the provided fields
-            { new: true, runValidators: true, context: "query" },
-        ).select("-password -contacts"); // Exclude password from the returned document
+        // use service to update the user
+        const updatedUser = await UpdateProfileService(userId, profileInfo);
+
+        // check if the user was updated
         if (!updatedUser) {
             return responseWriter(res, 404, false, "User not found.");
         }
         return responseWriter(res, 200, true, "profile update successful", { user: updatedUser });
     } catch (err) {
+        console.log(err);
         return responseWriter500(res, err);
     }
 };
 
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
 export const removeProfileImage = async (req, res) => {
     try {
         const userId = req.user._id;
-        const update = {
-            $unset: {
-                profilePicture: 1, //
-            },
-        };
-        const options = { new: true };
 
-        const updatedUser = await UserModel.findByIdAndUpdate(userId, update, options);
-        if (!updatedUser) {
-            return responseWriter(res, 404, false, "User not found.");
-        }
-        return responseWriter(res, 200, true, "profile photo removed successfully", {
-            user: updatedUser,
-        });
+        const updatedUser = await RemoveProfileImageService(userId);
+        if (!updatedUser) { return responseWriter(res, 404, false, "User not found."); }
+
+        return responseWriter(res, 200, true, "profile photo removed successfully", { user: updatedUser, });
     } catch (err) {
         console.error(err);
         return responseWriter500(res, err);
     }
 };
 
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
 export const getUserContact = async (req, res) => {
     try {
         const userId = req.user._id;
         let contacts = await GetUserContacts(userId);
-
         return responseWriter(res, 200, true, "Contacts retrived successfully", { contacts });
     } catch (err) {
         console.err(err);
@@ -95,6 +66,12 @@ export const getUserContact = async (req, res) => {
     }
 };
 
+
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
 export const addContact = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -103,7 +80,6 @@ export const addContact = async (req, res) => {
             return responseWriter(res, 400, false, error.details[0].message);
         }
         const { friendId } = req.body;
-        console.log(userId);
 
         if (!mongoose.Types.ObjectId.isValid(friendId)) {
             return responseWriter(res, 400, false, "Invalid friend ID format.");
@@ -147,11 +123,17 @@ export const addContact = async (req, res) => {
             contacts: user.contacts,
         });
     } catch (err) {
-        console.log(err);
+        console.error(err);
         return responseWriter500(res, err);
     }
 };
 
+
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
 export const searchUsers = async (req, res) => {
     try {
         const { email } = req.query;

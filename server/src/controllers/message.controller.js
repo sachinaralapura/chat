@@ -1,16 +1,12 @@
 import mongoose from "mongoose";
+import cloudinary from "../lib/cloudinary.js";
+import { NEWMESSAGE } from "../lib/constants.js";
+import { io, getAllSocketsOfUser } from "../lib/socketio.js";
 import { responseWriter, responseWriter500 } from "../lib/utils.js";
 import MessageModel from "../models/message.model.js";
-import Joi from "joi";
-import cloudinary from "../lib/cloudinary.js";
-
-const sendMessageSchema = Joi.object({
-    text: Joi.string(),
-    image: Joi.string(),
-});
+import { sendMessageSchema } from "../lib/validation.js";
 
 /**
- *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  */
@@ -35,7 +31,6 @@ export const getConverstion = async (req, res) => {
 };
 
 /**
- *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  */
@@ -66,6 +61,14 @@ export const sendMessage = async (req, res) => {
             image: imageUrl,
         });
         await newMessage.save();
+
+        // send the newMessage through socket for real time experience
+        const sockets = getAllSocketsOfUser(otherId);
+        if (sockets.length !== 0) {
+            for (const socket of sockets) {
+                io.to(socket).emit(NEWMESSAGE, newMessage);
+            }
+        }
 
         return responseWriter(res, 201, true, "message sent", { message: newMessage });
     } catch (err) {

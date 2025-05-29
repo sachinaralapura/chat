@@ -1,7 +1,7 @@
-import { Image, Send, Upload, X } from "lucide-react";
+import { Image, Send, X } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useChatStore } from "../store";
+import { useChatStore } from "../../store";
 
 function MessageInput() {
     const sendMessage = useChatStore((state) => state.sendMessage);

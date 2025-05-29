@@ -1,12 +1,13 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosObj } from "../lib/axios";
-
+import { use } from "react";
+import useAuthStore from "./useAuthStore";
+import { NEWMESSAGE } from "../contants";
 const useChatStore = create((set, get) => ({
     messages: [],   // store  the messages of selected contact
     contacts: [],  // store the contacts
     searchUsers: [], // store the search results
-    onlineUsers: [], // store the online users
 
     selectedContact: null,
     isContactsLoading: false,
@@ -77,6 +78,21 @@ const useChatStore = create((set, get) => ({
             set({ isChatLoading: false })
         }
     },
+
+    subscribeToNewMessage: () => {
+        if (!get().selectedContact) return;
+        const socket = useAuthStore.getState().socket;
+        socket.on(NEWMESSAGE, (message) => {
+            if (message.senderId !== get().selectedContact._id) return;
+            set({ messages: [...get().messages, message] })
+        })
+    },
+
+    unSubscribeToNewMessage: () => {
+        const socket = useAuthStore.getState().socket;
+        socket.off(NEWMESSAGE);
+    },
+
 
     sendMessage: async (data) => {
         set({ isSendingMessage: true })

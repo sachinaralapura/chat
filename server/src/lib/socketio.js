@@ -3,6 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { GetUserContactsId } from "../services/user_service.js";
+import { ONLINEUSERS, SOMEONEOFFLINE, SOMEONEONLINE } from "../lib/constants.js";
 
 const app = express();
 const httpserver = createServer(app);
@@ -15,9 +16,8 @@ const io = new Server(httpserver, {
     },
 });
 
-// online users
-// userId -> [socketid1 , socketid2 , .....];
 // map of userId and all the devices they have loggedIn
+// userId -> [socketid1 , socketid2 , .....];
 const onlineUserMap = new Map();
 
 // listen to "connection" event
@@ -41,15 +41,14 @@ io.on("connection", async (socket) => {
     // array id's of userId's contacts
     const contacts = await GetUserContactsId(userId);
 
-    // Update userOnline status in MongoDB
-    // await UpdateOnlineStatus(userId, true);
-
     // notify the user with userId with all the online users in their contact
-    // emit "INI-ONLINE-USER" event to all devices userId has logged in
+    // emit "ONLINE-USER" event to all devices userId has logged in
+    // send [onlineuser1 , onlineuser2 , onlineuser3 , onlineuser4 , .....] ==to=> [usesrIdSocket1, usesrIdSocket2 ,usesrIdSocket3,....];
     notifyOnlineUsers(userId, contacts);
 
     // notify all the users in the "userId's" contact that "userId" is online
-    notifyUserContact(userId, contacts, "SOMEONE-ONLINE");
+    // send userId ==to=> [...user1AllSocket , ...user2AllSocket ,...user3AllSocket ,...user4AllSocket]
+    notifyUserContact(userId, contacts, SOMEONEONLINE);
     //---------------------------------------------
     // listen to "disconnect" event
     socket.on("disconnect", () => {
@@ -62,8 +61,10 @@ io.on("connection", async (socket) => {
             if (socketsOfUser.size === 0) {
                 // delete the userId
                 onlineUserMap.delete(userId);
+
                 // Notify contacts of this user about their offline status
-                notifyUserContact(userId, contacts, "SOMEONE-OFFLINE");
+                // send userId ==to=> [...user1AllSocket , ...user2AllSocket ,...user3AllSocket ,...user4AllSocket]
+                notifyUserContact(userId, contacts, SOMEONEOFFLINE);
             }
         }
     });
@@ -82,7 +83,7 @@ function notifyOnlineUsers(userId, contacts) {
         // emit "ONLINE-USERS" event to all devices userId has logged in
         const userSockets = onlineUserMap.get(userId);
         for (const soc of userSockets) {
-            io.to(soc).emit("ONLINE-USERS", onlineUsers);
+            io.to(soc).emit(ONLINEUSERS, onlineUsers);
         }
     } catch (err) {
         console.error(err);
@@ -107,4 +108,11 @@ function notifyUserContact(userId, contacts, event) {
     } catch (err) {}
 }
 
-export { app, httpserver, io };
+function getAllSocketsOfUser(userId) {
+    if (onlineUserMap.has(userId)) {
+        return onlineUserMap.get(userId);
+    }
+    return [];
+}
+
+export { app, httpserver, io, getAllSocketsOfUser };

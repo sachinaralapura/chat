@@ -88,9 +88,9 @@ function NavBar() {
                     <button
                         title="logout"
                         onClick={logout}
-                        className="btn btn-primary btn-soft rounded-md"
+                        className="btn btn-primary hover:btn-error btn-soft rounded-md"
                     >
-                        <LogOut className="size-5 " />
+                        <LogOut className="size-5" />
                         <span className="hidden sm:inline">logout</span>
                     </button>
                 </div>

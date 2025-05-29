@@ -3,9 +3,9 @@ import { axiosObj } from "../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import { ErrorToast } from "../lib/utils";
+import { NEWMESSAGE, ONLINEUSERS, SOMEONEOFFLINE, SOMEONEONLINE } from "../contants"
 
-
-const SOCKET_URL = import.meta.env.VITE_SOCKET_BASE_URL;
+const SOCKET_URL = import.meta.env.MODE === "development" ? import.meta.env.VITE_SOCKET_BASE_URL : "/"
 
 const useAuthStore = create((set, get) => (
     {
@@ -36,30 +36,39 @@ const useAuthStore = create((set, get) => (
 
         connectSocket: () => {
             const authUser = get().authUser;
-            const soc = get().socket;
+
             // return if user is not authenticated or socket is already connected 
-            if (!authUser || soc?.connected) return;
+            if (!authUser || get().socket?.connected) return;
             // create socket
             const socket = io(SOCKET_URL, {
                 query: {
                     userId: authUser._id
                 }
             });
-
+            get().subscribeToUserEvents(socket);
             // connect socket
             socket.connect()
             set({ socket });
 
+        },
+
+        // subscribe to all user events
+        subscribeToUserEvents: (socket) => {
             // listen for ONLINE-USERS events
-            socket.on("ONLINE-USERS", (onlineUsers) => {
+            // returns array of online user's ids
+            socket.on(ONLINEUSERS, (onlineUsers) => {
                 set({ onlineUsers: onlineUsers })
             })
 
-            socket.on("SOMEONE-ONLINE", (id) => {
+            // listen for ONLINE-USERS events
+            // returns a online user id
+            socket.on(SOMEONEONLINE, (id) => {
                 set({ onlineUsers: get().onlineUsers.includes(id) ? get().onlineUsers : [...get().onlineUsers, id] })
             })
 
-            socket.on("SOMEONE-OFFLINE", (id) => {
+            // listen for ONLINE-USERS events
+            // returns a offline user id
+            socket.on(SOMEONEOFFLINE, (id) => {
                 set({ onlineUsers: get().onlineUsers.filter(u => u !== id) })
             })
         },

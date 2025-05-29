@@ -1,8 +1,8 @@
 import { useAuthStore, useChatStore } from "../store/";
 
 import Sidebar from "../components/Sidebar";
-import NoChatSelected from "../components/NoChatSelected";
-import ChatContainer from "../components/ChatContainer";
+import NoChatSelected from "../components/chat/NoChatSelected";
+import ChatContainer from "../components/chat/ChatContainer";
 import { useEffect } from "react";
 
 const HomePage = () => {
@@ -10,7 +10,7 @@ const HomePage = () => {
 
     const getContacts = useChatStore((state) => state.getContacts);
     const selectedContact = useChatStore((state) => state.selectedContact);
-      
+
     useEffect(() => {
         if (!authUser) return;
         getContacts();

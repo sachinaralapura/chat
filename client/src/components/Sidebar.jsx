@@ -1,6 +1,6 @@
 import { useAuthStore, useChatStore } from "../store";
 import { Users } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { DEFAULT_IMG } from "../contants";
 // sidebar for chat , contains list of users
@@ -13,8 +13,12 @@ function ChatSidebar() {
     const setSelectedContact = useChatStore((state) => state.setSelectedContact);
     const onlineUsers = useAuthStore((state) => state.onlineUsers);
 
-    // console.log(onlineUsers, "new state");
+    const [showOnline, setShowOnline] = useState(false)
 
+    const filteredUser = useMemo(() => {
+        if (!showOnline) return contacts;
+        return contacts.filter((user) => onlineUsers.includes(user._id));
+    }, [contacts, showOnline]);
 
     useEffect(() => {
         if (!authUser) return;
@@ -38,24 +42,27 @@ function ChatSidebar() {
                 <div className="flex items-center gap-2">
                     <Users className="size-5" />
                     <span className="font-medium hidden lg:block">Contacts</span>
-                </div>
-                {/* TODO: Online filter toggle */}
-                {/* <div className="mt-3 hidden lg:flex items-center gap-2">
-                    <label className="cursor-pointer flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={showOnlineOnly}
-                            onChange={(e) => setShowOnlineOnly(e.target.checked)}
-                            className="checkbox checkbox-sm"
-                        />
-                        <span className="text-sm">Show online only</span>
+                    <span className="text-xs text-zinc-500 ">
+                        ({contacts.length})
+                    </span>
+                    <label className="label hidden lg:block flex-1 text-end">
+                        online
+                        <input type="checkbox" onChange={(e) => setShowOnline(e.target.checked)} className="ml-2 toggle toggle-success toggle-sm" />
                     </label>
-                    <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span>
-                </div> */}
+                </div>
             </div>
 
             <div className="overflow-y-auto w-full">
-                {contacts.map((user) => (
+
+                {
+                    filteredUser.length === 0 && showOnline && (
+                        <div className="p-3 text-center text-zinc-500">
+                            No online users
+                        </div>
+                    )
+                }
+
+                {filteredUser.map((user) => (
                     <button
                         key={user._id}
                         onClick={() => setSelectedContact(user)}
