@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useChatStore } from "../../store";
 
+
 function MessageInput() {
     const sendMessage = useChatStore((state) => state.sendMessage);
     const isSendingMessage = useChatStore((state) => state.isSendingMessage);
@@ -10,6 +11,16 @@ function MessageInput() {
     const [text, setText] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
     const imageInputRef = useRef(null);
+
+    // send message on enter
+    const handleKeyDown = (e) => {
+        // if enter and there is a message
+        if (e.key === "Enter" && text.trim()) {
+            e.preventDefault();
+            handleSendMessage(e);
+            setText("");
+        }
+    };
 
     const handleImageSelect = (e) => {
         const file = imageInputRef.current.files[0];
@@ -70,9 +81,9 @@ function MessageInput() {
                     placeholder="Type a message"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className={`flex-1 input input-ghost border-primary/30 w-full h-10 bg-base-100`}
                 />
-
 
                 {/* send button and image button */}
                 <div className="flex-none flex gap-2  text-primary hover:text-base-content">

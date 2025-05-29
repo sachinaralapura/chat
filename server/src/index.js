@@ -24,9 +24,10 @@ function apiV1Router(app) {
 
 //set middlewares
 function setMiddlewares(app) {
-    app.use(express.json({ limit: "15mb" }));
+    const cors_url = process.env.NODE_ENV === "development" ? process.env.CORS_URL : "/";
+    app.use(express.json({ limit: "15mb", extended: true }));
     app.use(cookieParser());
-    app.use(cors({ origin: process.env.CORS_URL, credentials: true }));
+    app.use(cors({ origin: cors_url, credentials: true }));
 }
 
 function main() {
