@@ -73,7 +73,7 @@ function ChatSidebar() {
                             <div className="w-8 lg:w-12 rounded-full">
                                 {/* <span className="indicator-item indicator-bottom indicator-center badge">{user.username}</span> */}
                                 <img
-                                    src={user.profilePic || DEFAULT_IMG}
+                                    src={user.profilePicture || DEFAULT_IMG}
                                     alt={user.username}
                                     className="size-12 object-cover rounded-full w-16"
                                 />
@@ -88,9 +88,6 @@ function ChatSidebar() {
                     </button>
                 ))}
 
-                {contacts?.length === 0 && (
-                    <div className="text-center text-zinc-500 py-4">No users</div>
-                )}
             </div>
         </aside>
     );

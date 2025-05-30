@@ -22,7 +22,8 @@ export const getConverstion = async (req, res) => {
                 { senderId: selfId, receiverId: otherId },
                 { senderId: otherId, receiverId: selfId },
             ],
-        });
+        }).sort({ createdAt: 1 });
+        
         return responseWriter(res, 200, true, "message retrived successful", { messages });
     } catch (err) {
         console.error(err);
