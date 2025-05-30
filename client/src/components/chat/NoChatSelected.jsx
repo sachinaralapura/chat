@@ -19,6 +19,7 @@ const NoChatSelected = () => {
                 <p className="text-base-content/60">
                     Select a conversation from the sidebar to start chatting
                 </p>
+                <p className="text-error">there is bug in blocking contact</p>
             </div>
         </div>
     );
