@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import UserModel from "../models/user.model.js";
+import { JWT_SECRET } from "../lib/env.js";
 /**
  * @param {import("express").Request} req
  * @param {import("express").Response} res
@@ -13,7 +14,7 @@ export const protectRoute = async (req, res, next) => {
                 message: "Unauthorized - No token provided",
             });
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
         if (!decoded)
             return res.status(401).json({
                 status: false,

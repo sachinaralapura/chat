@@ -6,6 +6,7 @@ import path from "path";
 import { connectMongo } from "./lib/db.js";
 import { app, httpserver } from "./lib/socketio.js";
 import { authRouter, messageRouter, userRouter } from "./routes/index.js";
+import { CORS_URL, NODE_ENV, PORT } from "./lib/env.js";
 
 const __dirname = path.resolve();
 
@@ -24,10 +25,9 @@ function apiV1Router(app) {
 
 //set middlewares
 function setMiddlewares(app) {
-    const cors_url = process.env.NODE_ENV === "development" ? process.env.CORS_URL : "/";
     app.use(express.json({ limit: "15mb", extended: true }));
     app.use(cookieParser());
-    app.use(cors({ origin: cors_url, credentials: true }));
+    app.use(cors({ origin: CORS_URL, credentials: true }));
 }
 
 function main() {
@@ -38,7 +38,7 @@ function main() {
     apiV1Router(app);
 
     // serve static files in production
-    if (process.env.NODE_ENV === "production") {
+    if (NODE_ENV === "production") {
         app.use(express.static(path.join(__dirname, "../client/dist")));
         app.get('/{*splat}', (req, res) => {
             try {
@@ -49,7 +49,6 @@ function main() {
         })
     }
 
-    const PORT = process.env.PORT || 8000;
     httpserver.listen(PORT, () => {
         connectMongo();
         console.log(`app running on ${PORT}`);

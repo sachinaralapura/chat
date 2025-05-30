@@ -14,5 +14,5 @@ export const ErrorToast = (err) => {
     if (err.code === "ERR_NETWORK")
         toast.error(err.message);
     else
-        toast.error(err.response.data.message);
+        toast.error(err?.response?.data.message);
 }

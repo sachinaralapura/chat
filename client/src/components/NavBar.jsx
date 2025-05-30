@@ -23,20 +23,6 @@ function NavBar() {
                 </span>
             </div>
 
-            {/* add new cantact */}
-            {AuthUser && (
-                <div className="flex-none mr-5">
-                    <button
-                        title="add new contact"
-                        className="btn btn-primary btn-soft rounded-md"
-                        onClick={() => document.getElementById("new_contact").showModal()}
-                    >
-                        <PlusCircle className="size-5" />
-                        <span className="hidden sm:inline">Add contact</span>
-                    </button>
-                </div>
-            )}
-
             {/* particle play and pause */}
             {!AuthUser && (
                 <div className="flex-none mr-5">

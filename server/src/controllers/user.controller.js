@@ -1,9 +1,8 @@
 import UserModel from "../models/user.model.js";
 import { responseWriter, responseWriter500 } from "../lib/utils.js";
 import mongoose from "mongoose";
-import cloudinary from "../lib/cloudinary.js";
 import { GetUserContacts, UpdateProfileService, RemoveProfileImageService } from "../services/user_service.js";
-import { updateProfileSchema, addContactSchema } from "../lib/validation.js";
+import { updateProfileSchema, addContactSchema, blockContactSchema } from "../lib/validation.js";
 
 /**
  *
@@ -66,9 +65,26 @@ export const getUserContact = async (req, res) => {
     }
 };
 
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @returns
+ */
+export const rejectContactRequest = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { friendId } = req.body;
+        await UserModel.findByIdAndUpdate(userId, { $pull: { requests: friendId } });
+        return responseWriter(res, 200, true, "Contact request rejected successfully");
+    } catch (err) {
+        console.error(err);
+        return responseWriter500(res, err);
+    }
+};
 
 
 /**
+ * addContacts does both add a contact and accecpting a requests
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  */
@@ -96,7 +112,7 @@ export const addContact = async (req, res) => {
         }
 
         // 2. Verify that the friend actually exists in the database
-        const friend = await UserModel.findById(friendId).select("_id username");
+        let friend = await UserModel.findById(friendId).select("_id username");
         if (!friend) {
             return responseWriter(res, 404, false, "Contact user does not exist.");
         }
@@ -119,6 +135,26 @@ export const addContact = async (req, res) => {
 
         // 5. Save the updated user document
         await user.save();
+
+        // 6. check if the friendId exists in the user's requests array
+        const requestExists = user.requests.some((request) => request.toString() === friendId);
+        if (requestExists) {
+            // remove the friendId from the user's requests array
+            user.requests = user.requests.filter((request) => request.toString() !== friendId);
+            await user.save();
+            return responseWriter(res, 200, true, "Contact added successfully", {
+                contacts: user.contacts,
+            });
+        }
+
+        // 7. add the userId to the friend's requests array if friendId 
+        friend = await UserModel.findById(friendId);
+        if (!friend) {
+            return responseWriter(res, 404, false, "Contact user does not exist.");
+        }
+        friend.requests.push(userId);
+        await friend.save();
+
         return responseWriter(res, 200, true, "Contact added successfully", {
             contacts: user.contacts,
         });
@@ -128,7 +164,30 @@ export const addContact = async (req, res) => {
     }
 };
 
-
+/**
+ * @param {import("express").Request} req 
+ * @param {import("express").Response} res 
+ * @returns 
+ */
+export const blockContact = async (req, res) => {
+    try {
+        const { error } = blockContactSchema.validate(req.body);
+        if (error) {
+            return responseWriter(res, 400, false, error.details[0].message);
+        }
+        const userId = req.user._id;
+        const { friendId, block } = req.body;
+        // change the contacts.blocked value to 'block'
+        await UserModel.updateOne(
+            { _id: userId, "contacts.userId": friendId },
+            { $set: { "contacts.$.blocked": block } },
+        );
+        return responseWriter(res, 200, true, "");
+    } catch (err) {
+        console.error(err);
+        return responseWriter500(res, err);
+    }
+}
 
 /**
  * @param {import("express").Request} req
@@ -141,8 +200,8 @@ export const searchUsers = async (req, res) => {
             return responseWriter(res, 400, false, "email query paramater required");
         }
         const users = await UserModel.find({ email: { $regex: email, $options: "i" } })
-            .select("-password -contacts")
-            .limit(6);
+            .select("email username profilePicture")
+            .limit(8);
 
         if (users.length === 0) {
             return responseWriter(res, 404, false, "no users found");
@@ -154,3 +213,20 @@ export const searchUsers = async (req, res) => {
         return responseWriter500(res, err);
     }
 };
+
+/**
+ * @param {import("express").Request} req 
+ * @param {import("express").Response} res 
+ * @returns 
+ */
+export const getContactRequests = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        // get the populated contact requests
+        let requests = await UserModel.findById(userId).populate({ path: 'requests', select: 'username email profilePicture' });
+        return responseWriter(res, 200, true, "Contact requests retrieved successfully", { requests: requests.requests });
+    } catch (err) {
+        console.error(err);
+        return responseWriter500(res, err);
+    }
+}

@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
+import { MONGO_URL } from "./env.js";
 
 export const connectMongo = async () => {
     try {
-        const MONGO_URL = process.env.MONGODB_URL;
         const conn = await mongoose.connect(MONGO_URL);
         console.log(`mongodb connected ${conn.connection.host}`);
     } catch (err) {

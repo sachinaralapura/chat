@@ -7,7 +7,9 @@ import "./index.css";
 import { HomePage, LoginPage, ProfilePage, SettingsPage, SignUpPage } from "./pages";
 import { useAuthStore, useChatStore, usePreferenceStore } from "./store";
 import MyToaster from "./components/Toaster";
-import NewContactModel from "./components/NewContactModel";
+import NewContactModel from "./components/modals/NewContactModal";
+import RequestsModal from "./components/modals/RequestsModal";
+import BlockedModal from "./components/modals/BlockedModal";
 
 function App() {
 
@@ -62,6 +64,8 @@ function App() {
                     element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
                 />
             </Routes>
+            <BlockedModal />
+            <RequestsModal />
             <NewContactModel />
             <MyToaster />
         </div>

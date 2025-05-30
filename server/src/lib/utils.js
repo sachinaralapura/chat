@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { JWT_SECRET, NODE_ENV } from "./env.js";
 /**
  * @param {string} id - User Id
  * @param {string} username - Username
@@ -7,7 +8,7 @@ import jwt from "jsonwebtoken";
  */
 export const SetJwtToCookie = (id, email, res) => {
     // Generate JWT token
-    const token = jwt.sign({ user_id: id, email: email }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ user_id: id, email: email }, JWT_SECRET, {
         expiresIn: "2d",
     });
     // Set httpOnly Cookie
@@ -15,7 +16,7 @@ export const SetJwtToCookie = (id, email, res) => {
         maxAge: 2 * 24 * 60 * 60 * 1000, // two days
         httpOnly: true, // prevent XSS attacks cross-site scription attacks
         sameSite: "strict", // CSRF attacks cross-site request forgery attacks
-        secure: process.env.NODE_ENV !== "development",
+        secure: NODE_ENV !== "development",
     });
 };
 

@@ -40,3 +40,8 @@ export const sendMessageSchema = Joi.object({
     text: Joi.string(),
     image: Joi.string(),
 });
+
+export const blockContactSchema = Joi.object({
+    friendId: Joi.string().required(),
+    block: Joi.boolean().required(),
+});

@@ -1,4 +1,5 @@
 import useAuthStore from "./useAuthStore";
 import usePreferenceStore from "./usePreference";
 import useChatStore from "./useChatStore";
-export { useAuthStore, usePreferenceStore, useChatStore }
+import useUserStore from "./useUserStore";
+export { useAuthStore, usePreferenceStore, useChatStore, useUserStore }

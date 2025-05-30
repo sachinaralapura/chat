@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema(
                 name: { type: String, default: undefined },
             },
         ],
+        requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" },],
         bio: {
             type: String,
             maxlength: 200,

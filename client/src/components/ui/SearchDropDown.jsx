@@ -64,7 +64,7 @@ const SearchDropdown = ({ setSelectUser }) => {
 
     return (
         <div
-            className="dropdown dropdown-top relative inline-block w-full max-w-md "
+            className="dropdown dropdown-top relative inline-block w-full max-w-md mb-10 "
             ref={dropdownRef}
         >
             <label className="label w-full mt-2">

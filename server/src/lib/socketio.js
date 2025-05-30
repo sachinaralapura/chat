@@ -4,6 +4,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { GetUserContactsId } from "../services/user_service.js";
 import { ONLINEUSERS, SOMEONEOFFLINE, SOMEONEONLINE } from "../lib/constants.js";
+import { CORS_URL } from "./env.js";
 
 const app = express();
 const httpserver = createServer(app);
@@ -11,7 +12,7 @@ const httpserver = createServer(app);
 // socket server
 const io = new Server(httpserver, {
     cors: {
-        origin: [process.env.CORS_URL],
+        origin: [CORS_URL],
         credentials: true,
     },
 });
@@ -105,7 +106,7 @@ function notifyUserContact(userId, contacts, event) {
         for (const soc of socketsToNotify) {
             io.to(soc).emit(event, userId);
         }
-    } catch (err) {}
+    } catch (err) { }
 }
 
 function getAllSocketsOfUser(userId) {
